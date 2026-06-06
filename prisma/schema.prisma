@@ -68,7 +68,7 @@ model Category {
   parent   Category? @relation("CategoryRelation", fields: [parentId], references: [id])
   children Category[] @relation("CategoryRelation")
   products Product[]
-  sortOrder Int @default(0)
+  sortOrder Int @default(0) @map("sortorder")
   createdAt DateTime @default(now())
 }
 
