@@ -25,6 +25,7 @@ async function main() {
       email: "admin@khotwh.com",
       password: hashedPassword,
       role: "ADMIN",
+      updatedAt: new Date(),
     },
   })
 
