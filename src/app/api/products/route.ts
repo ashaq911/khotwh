@@ -17,7 +17,11 @@ export async function GET(req: NextRequest) {
     if (category) {
       const cat = await prisma.category.findUnique({ where: { slug: category } });
       if (cat) {
-        where.categoryId = cat.id;
+        const childIds = await prisma.category.findMany({
+          where: { OR: [{ id: cat.id }, { parentId: cat.id }] },
+          select: { id: true },
+        })
+        where.categoryId = { in: childIds.map(c => c.id) }
       } else {
         return NextResponse.json({ products: [], total: 0, pages: 0 });
       }
