@@ -46,7 +46,7 @@ export default function LoginPageClient() {
         return
       }
       toast.success("Welcome back!")
-      router.push(callbackUrl)
+      await router.push(callbackUrl)
       router.refresh()
     } catch {
       toast.error("Something went wrong")
