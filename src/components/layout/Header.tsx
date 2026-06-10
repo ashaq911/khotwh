@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Search, Menu, X, User, Heart, ShoppingBag, ChevronDown } from "lucide-react"
+import { Search, Menu, X, User, Heart, ShoppingBag, ChevronDown, LogOut } from "lucide-react"
 import { useCart } from "@/lib/store"
+import { useSession, signOut } from "next-auth/react"
 import { cn } from "@/lib/utils"
 
 const COUNTDOWN_TARGET = 6 * 60 * 60
@@ -24,12 +25,16 @@ const categories = [
 ]
 
 export default function Header() {
+  const { data: session } = useSession()
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenu, setMobileMenu] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [timeLeft, setTimeLeft] = useState(COUNTDOWN_TARGET)
   const [mounted, setMounted] = useState(false)
   const totalItems = useCart((s) => s.totalItems())
+  const isAdmin = session?.user?.role === "ADMIN"
+  const isLoggedIn = !!session
+  const accountHref = isAdmin ? "/admin" : "/account"
 
   useEffect(() => {
     setMounted(true)
@@ -83,9 +88,20 @@ export default function Header() {
 
         {/* Icons */}
         <div className="flex items-center gap-3">
-          <Link href="/auth/login" className="hidden md:block text-zinc-600 hover:text-primary transition-colors">
-            <User className="h-5 w-5" />
-          </Link>
+          {isLoggedIn ? (
+            <div className="hidden md:flex items-center gap-2">
+              <Link href={accountHref} className="text-zinc-600 hover:text-primary transition-colors">
+                <User className="h-5 w-5" />
+              </Link>
+              <button onClick={() => signOut()} className="text-zinc-400 hover:text-red-500 transition-colors" title="Sign out">
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <Link href="/auth/login" className="hidden md:block text-zinc-600 hover:text-primary transition-colors">
+              <User className="h-5 w-5" />
+            </Link>
+          )}
           <button
             onClick={() => setSearchOpen(!searchOpen)}
             className="md:hidden text-zinc-600 hover:text-primary transition-colors"
@@ -233,15 +249,35 @@ export default function Header() {
                 </li>
               </ul>
             </nav>
-            <div className="border-t border-zinc-200 px-4 py-4">
-              <Link
-                href="/auth/login"
-                onClick={() => setMobileMenu(false)}
-                className="flex items-center gap-2 text-sm text-zinc-600 hover:text-primary transition-colors"
-              >
-                <User className="h-4 w-4" />
-                My Account
-              </Link>
+            <div className="border-t border-zinc-200 px-4 py-4 space-y-2">
+              {isLoggedIn ? (
+                <>
+                  <Link
+                    href={accountHref}
+                    onClick={() => setMobileMenu(false)}
+                    className="flex items-center gap-2 text-sm text-zinc-600 hover:text-primary transition-colors"
+                  >
+                    <User className="h-4 w-4" />
+                    {isAdmin ? "Admin Dashboard" : "My Account"}
+                  </Link>
+                  <button
+                    onClick={() => { setMobileMenu(false); signOut() }}
+                    className="flex items-center gap-2 text-sm text-red-500 hover:text-red-700 transition-colors w-full"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/auth/login"
+                  onClick={() => setMobileMenu(false)}
+                  className="flex items-center gap-2 text-sm text-zinc-600 hover:text-primary transition-colors"
+                >
+                  <User className="h-4 w-4" />
+                  My Account
+                </Link>
+              )}
             </div>
           </div>
         </div>
