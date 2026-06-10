@@ -3,8 +3,10 @@ import Credentials from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import prisma from "./prisma"
 
+const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || "khotwh-secret-do-not-hardcode-in-prod"
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
+  secret,
   session: { strategy: "jwt" },
   pages: {
     signIn: "/auth/login",
