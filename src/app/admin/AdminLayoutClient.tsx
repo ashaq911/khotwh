@@ -1,9 +1,12 @@
 "use client"
 
+"use client"
+
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { SessionProvider } from "next-auth/react"
+import type { Session } from "next-auth"
 import AdminSidebar from "@/components/admin/AdminSidebar"
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
@@ -49,9 +52,9 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   )
 }
 
-export default function AdminLayoutClient({ children }: { children: React.ReactNode }) {
+export default function AdminLayoutClient({ children, session }: { children: React.ReactNode; session?: Session | null }) {
   return (
-    <SessionProvider>
+    <SessionProvider session={session} basePath="/api/auth">
       <AdminLayoutContent>{children}</AdminLayoutContent>
     </SessionProvider>
   )
